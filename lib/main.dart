@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import "settings.dart";
+import 'dart:convert' as convert;
+import 'package:http/http.dart' as http;
 import 'config.dart' as conf;
+import 'feedback_model.dart';
+import "dart:developer" as dev;
 
-final oCcy = new NumberFormat("#,##0.00", "en_US");
-void main() => runApp(const MyApp());
+final form = NumberFormat("#,##0.00", "en_US");
+final form2 = NumberFormat("#,##0", "en_US");
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -26,6 +33,7 @@ class MyStatefulWidget extends StatefulWidget {
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   int _selectedIndex = 0;
+  bool wait = true;
   late String Name = "Артём";
   var money = 5560.068;
   static const TextStyle optionStyle =
@@ -36,10 +44,87 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     return "";
   }
 
+  getData() {
+    http.get(Uri.parse(conf.link)).then((value) {
+      var jsonFeedback = convert.jsonDecode(value.body);
+      jsonFeedback.forEach((e) {
+        FeedbackModel feedbackModel = FeedbackModel();
+        feedbackModel.date = e["date"];
+        feedbackModel.type = e["type"];
+        feedbackModel.correction = e["correction"];
+        feedbackModel.comment = e["comment"];
+        feedbackModel.sum = e["sum"];
+        conf.data.add(feedbackModel);
+      });
+      setState(() {
+        wait = false;
+      });
+    }).catchError((er) {
+      dev.log(er);
+    });
+  }
+
+  Widget button(IconData icon, String text, double sum) {
+    return Container(
+        margin: const EdgeInsets.symmetric(vertical: 9, horizontal: 30),
+        height: MediaQuery.of(context).size.height / 11,
+        child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                shadowColor: Colors.transparent,
+                primary: const Color.fromARGB(255, 234, 237, 239)),
+            onPressed: () {},
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(
+                  icon,
+                  color: Colors.black,
+                  size: 40,
+                ),
+                Text(
+                  text,
+                  style: const TextStyle(color: Colors.black, fontSize: 25),
+                ),
+                const SizedBox(
+                  width: 35,
+                ),
+                Text(
+                  form2.format(sum.toInt()),
+                  style: const TextStyle(color: Colors.black),
+                )
+              ],
+            )));
+  }
+
+  Widget last() {
+    if (wait) {
+      return const Center(
+        child: CircularProgressIndicator(
+          backgroundColor: Colors.blue,
+          strokeWidth: 5,
+        ),
+      );
+    } else {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          button(Icons.shopping_bag, "покупки", 300),
+          button(Icons.car_rental, "Машина", 300),
+        ],
+      );
+    }
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    getData();
+    super.initState();
   }
 
   @override
@@ -77,7 +162,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                               color: Colors.black, fontSize: 20),
                           children: <TextSpan>[
                             TextSpan(
-                                text: oCcy.format(money),
+                                text: form.format(money),
                                 style: const TextStyle(
                                     fontSize: 25, fontWeight: FontWeight.w600))
                           ])),
@@ -139,7 +224,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                 MaterialPageRoute(
                                     builder: (context) => const Settings()),
                               );
-                              //   print("lol");
                             },
                             icon: const Icon(
                               Icons.menu,
@@ -234,7 +318,14 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   ),
                   onPressed: () {},
                 ),
-              )
+              ),
+              Container(
+                  color: Colors.transparent,
+                  margin: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * 4.8 / 8),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height / 3,
+                  child: last())
             ],
           ),
           const Text(

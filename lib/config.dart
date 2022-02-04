@@ -1,3 +1,5 @@
+import 'feedback_model.dart';
+
 var words = {
   "ru": {
     "Hello": "Привет",
@@ -24,4 +26,7 @@ var words = {
 };
 late String language = "ru";
 // ignore: prefer_typing_uninitialized_variables
-var data;
+List<FeedbackModel> data = [];
+late double balance;
+late String link =
+    "https://script.google.com/macros/s/AKfycbyrOejUslDNvZH2mYK_HXHIUl_dU53sXHJ7hUFiw7PrM3yoq1SyuEKS30j5X20RQ6ZVvw/exec";
