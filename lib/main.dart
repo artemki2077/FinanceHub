@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:super_team/history.dart';
 import "settings.dart";
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
@@ -35,16 +36,11 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   int _selectedIndex = 0;
   bool wait = true;
   late String Name = "Артём";
-  var money = 5560.068;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
-  String doubleToMoney(var n) {
-    n = n.toStringAsFixed(2);
-    return "";
-  }
-
   getData() {
+    late DateTime last = DateTime(1890);
     http.get(Uri.parse(conf.link)).then((value) {
       var jsonFeedback = convert.jsonDecode(value.body);
       jsonFeedback.forEach((e) {
@@ -54,22 +50,33 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         feedbackModel.correction = e["correction"];
         feedbackModel.comment = e["comment"];
         feedbackModel.sum = e["sum"];
+        conf.money += e["sum"];
         conf.data.add(feedbackModel);
+        if (last.day != DateTime.parse(e["date"]).day) {
+          conf.history.add(DateTime.parse(e["date"]));
+          conf.history.add(feedbackModel);
+          last = DateTime.parse(e["date"]);
+        } else {
+          conf.history.add(feedbackModel);
+        }
       });
       setState(() {
         wait = false;
       });
     }).catchError((er) {
-      dev.log(er);
+      dev.log(er.toString());
     });
   }
 
-  Widget button(IconData icon, String text, double sum) {
+  Widget button(IconData icon, String text, var sum) {
     return Container(
         margin: const EdgeInsets.symmetric(vertical: 9, horizontal: 30),
         height: MediaQuery.of(context).size.height / 11,
         child: ElevatedButton(
             style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
                 shadowColor: Colors.transparent,
                 primary: const Color.fromARGB(255, 234, 237, 239)),
             onPressed: () {},
@@ -90,7 +97,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 ),
                 Text(
                   form2.format(sum.toInt()),
-                  style: const TextStyle(color: Colors.black),
+                  style: const TextStyle(color: Colors.black, fontSize: 25),
                 )
               ],
             )));
@@ -104,13 +111,30 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           strokeWidth: 5,
         ),
       );
-    } else {
+    } else if (!wait && conf.data.isNotEmpty) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          button(Icons.shopping_bag, "покупки", 300),
-          button(Icons.car_rental, "Машина", 300),
+          button(
+              conf.useIcons[conf.data[conf.data.length - 2].type]!,
+              conf.data[conf.data.length - 2].type,
+              conf.data[conf.data.length - 2].sum),
+          conf.data.length > 1
+              ? button(
+                  conf.useIcons[conf.data[conf.data.length - 1].type]!,
+                  conf.data[conf.data.length - 1].type,
+                  conf.data[conf.data.length - 1].sum)
+              : SizedBox(
+                  height: MediaQuery.of(context).size.height / 11,
+                )
         ],
+      );
+    } else {
+      return const Center(
+        child: Text(
+          "У вас нет данных",
+          style: TextStyle(fontSize: 20),
+        ),
       );
     }
   }
@@ -147,7 +171,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                       ),
                       shadowColor: Colors.transparent,
                       primary: const Color.fromARGB(255, 245, 224, 199)),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const History()),
+                    );
+                  },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -162,7 +191,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                               color: Colors.black, fontSize: 20),
                           children: <TextSpan>[
                             TextSpan(
-                                text: form.format(money),
+                                text: form.format(conf.money),
                                 style: const TextStyle(
                                     fontSize: 25, fontWeight: FontWeight.w600))
                           ])),
@@ -226,8 +255,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                               );
                             },
                             icon: const Icon(
-                              Icons.menu,
-                              size: 40,
+                              MyIcon.dot_3,
+                              size: 30,
                             )),
                         const SizedBox(
                           width: 10,
@@ -250,8 +279,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                             "${conf.words[conf.language]!["Income"]}",
                             style: const TextStyle(fontSize: 17),
                           ),
-                          icon: const Icon(
-                            MyIcon.plus_circled,
+                          icon: Icon(
+                            MyIcon.plus_circle,
                             size: 40,
                           ),
                           style: ElevatedButton.styleFrom(
@@ -278,7 +307,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                             style: const TextStyle(fontSize: 17),
                           ),
                           icon: const Icon(
-                            MyIcon.minus_circled,
+                            MyIcon.minus_circle,
                             size: 40,
                           ),
                           onPressed: () {},
@@ -316,7 +345,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                       )
                     ],
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const History()),
+                    );
+                  },
                 ),
               ),
               Container(
@@ -329,11 +363,11 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             ],
           ),
           const Text(
-            'Index 1: Business',
+            'I have a big dick',
             style: optionStyle,
           ),
           const Text(
-            'Index 2: School',
+            'liza is a facking bitch',
             style: optionStyle,
           ),
         ].elementAt(_selectedIndex),
@@ -349,14 +383,14 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              MyIcon.pie_chart,
+              MyIcon.chart_pie,
               size: 35,
             ),
             label: '',
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              MyIcon.chart_bar,
+              MyIcon.star,
               size: 35,
             ),
             label: '',
@@ -376,16 +410,46 @@ class MyIcon {
   static const _kFontFam = 'MyIcon';
   static const String? _kFontPkg = null;
 
-  static const IconData home_outline =
+  static const IconData basket =
       IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData plus_circled =
+  static const IconData location_on =
       IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData minus_circled =
+  static const IconData local_taxi =
       IconData(0xe802, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData pie_chart =
-      IconData(0xe842, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData chart_bar =
-      IconData(0xf526, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData file_upload =
-      IconData(0xf574, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData star =
+      IconData(0xe803, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData looped_square_interest =
+      IconData(0xe804, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData looped_square_outline =
+      IconData(0xe805, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData directions_transit =
+      IconData(0xe806, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData delete =
+      IconData(0xe807, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData export_icon =
+      IconData(0xe808, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData language =
+      IconData(0xe809, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData credit_card =
+      IconData(0xe80a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData dot_3 =
+      IconData(0xe80b, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData message =
+      IconData(0xe80c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData plus_circle =
+      IconData(0xf055, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData minus_circle =
+      IconData(0xf056, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData plus =
+      IconData(0xf067, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData minus =
+      IconData(0xf068, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData chart_pie =
+      IconData(0xf200, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData shopping_bag =
+      IconData(0xf290, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData primitive_square =
+      IconData(0xf324, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData piggy_bank =
+      IconData(0xf4d3, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

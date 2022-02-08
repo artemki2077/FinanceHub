@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'config.dart' as conf;
 
 class Settings extends StatefulWidget {
   const Settings({Key? key}) : super(key: key);
@@ -8,120 +9,86 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+  List<Widget> addWidgets(context) {
+    late List<Widget> all = [];
+
+    late List<List> text = [
+      [Icons.table_rows, "таблица данных"],
+      [Icons.send, "экспорт данных"],
+      [Icons.translate, "сменить язык"],
+      [Icons.delete, "удалить данные"]
+    ];
+
+    for (var i in text) {
+      all.add(
+        Container(
+          margin: const EdgeInsets.symmetric(vertical: 7, horizontal: 20),
+          width: MediaQuery.of(context).size.width * 10 / 10,
+          height: MediaQuery.of(context).size.height * 1 / 10,
+          child: ElevatedButton(
+            onPressed: () {},
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Icon(
+                  i[0],
+                  color: Colors.black,
+                  size: 30,
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  i[1],
+                  style: const TextStyle(fontSize: 20, color: Colors.black),
+                ),
+                const Spacer(),
+                const Text(
+                  "❯",
+                  style: TextStyle(color: Colors.black),
+                )
+              ],
+            ),
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10), // <-- Radius
+              ),
+              onPrimary: const Color.fromARGB(255, 100, 224, 196),
+              primary: const Color.fromARGB(255, 233, 237, 239),
+              shadowColor: Colors.transparent,
+              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+            ),
+          ),
+        ),
+      );
+    }
+    return all;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // backgroundColor: const Color.fromARGB(255, 197, 188, 212),
       body: Stack(
         children: <Widget>[
-          ListView(padding: const EdgeInsets.all(8), children: <Widget>[
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 1.7 / 10,
-            ),
-            Container(
-              margin: const EdgeInsets.all(7),
-              width: MediaQuery.of(context).size.width * 8.5 / 10,
-              height: MediaQuery.of(context).size.height * 1 / 10,
-              child: ElevatedButton(
-                onPressed: () {},
-                child: Row(
-                  children: const [
-                    Icon(
-                      Icons.shield,
-                      color: Colors.black,
+          ListView(
+              padding: const EdgeInsets.all(5),
+              children: <Widget>[
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 1.7 / 10,
+                    ),
+                  ] +
+                  addWidgets(context) +
+                  [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 1 / 10,
                     )
-                  ],
-                ),
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // <-- Radius
-                  ),
-                  onPrimary: const Color.fromARGB(255, 100, 224, 196),
-                  primary: const Color.fromARGB(255, 233, 237, 239),
-                  shadowColor: Colors.transparent,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-                ),
-              ),
-            ),
-            // Container(
-            //   width: MediaQuery.of(context).size.width * 6 / 10,
-            //   height: MediaQuery.of(context).size.height * 1 / 10,
-            //   margin: const EdgeInsets.only(bottom: 7),
-            //   decoration: BoxDecoration(
-            //       color: const Color.fromARGB(255, 233, 237, 239),
-            //       borderRadius: BorderRadius.circular(10)),
-            // ),
-            Container(
-              margin: const EdgeInsets.all(7),
-              width: MediaQuery.of(context).size.width * 8.5 / 10,
-              height: MediaQuery.of(context).size.height * 1 / 10,
-              child: ElevatedButton(
-                onPressed: () {},
-                child: const Text(
-                  "lol",
-                  style: TextStyle(color: Colors.black),
-                ),
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // <-- Radius
-                  ),
-                  onPrimary: const Color.fromARGB(255, 100, 224, 196),
-                  primary: const Color.fromARGB(255, 233, 237, 239),
-                  shadowColor: Colors.transparent,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-                ),
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.all(7),
-              width: MediaQuery.of(context).size.width * 8.5 / 10,
-              height: MediaQuery.of(context).size.height * 1 / 10,
-              child: ElevatedButton(
-                onPressed: () {},
-                child: const Text(
-                  "lol",
-                  style: TextStyle(color: Colors.black),
-                ),
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // <-- Radius
-                  ),
-                  onPrimary: const Color.fromARGB(255, 100, 224, 196),
-                  primary: const Color.fromARGB(255, 233, 237, 239),
-                  shadowColor: Colors.transparent,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-                ),
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.all(7),
-              width: MediaQuery.of(context).size.width * 8.5 / 10,
-              height: MediaQuery.of(context).size.height * 1 / 10,
-              child: ElevatedButton(
-                onPressed: () {},
-                child: const Text(
-                  "lol",
-                  style: TextStyle(color: Colors.black),
-                ),
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // <-- Radius
-                  ),
-                  onPrimary: const Color.fromARGB(255, 100, 224, 196),
-                  primary: const Color.fromARGB(255, 233, 237, 239),
-                  shadowColor: Colors.transparent,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 1 / 10,
-            )
-          ]),
+                  ]),
           Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height / 6,
@@ -144,7 +111,7 @@ class _SettingsState extends State<Settings> {
                           Navigator.pop(context);
                         },
                         icon: const Icon(
-                          Icons.account_circle,
+                          Icons.arrow_back_ios,
                           size: 50,
                         ),
                       ),
@@ -154,13 +121,14 @@ class _SettingsState extends State<Settings> {
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
-                          "Настройки",
-                          style: TextStyle(fontSize: 30),
+                          conf.words[conf.language]!["Settings"]!,
+                          style: TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          "создавайте",
+                          conf.words[conf.language]!["Creat"]!,
                           style: TextStyle(fontSize: 20),
                         )
                       ],
@@ -169,10 +137,11 @@ class _SettingsState extends State<Settings> {
                       width: 80,
                     ),
                     Container(
-                      margin: EdgeInsets.only(right: 15),
+                      margin: const EdgeInsets.only(right: 15),
                       child: const Icon(
                         Icons.menu,
                         size: 40,
+                        color: Colors.transparent,
                       ),
                     ),
                   ],
