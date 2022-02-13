@@ -13,10 +13,19 @@ class _SettingsState extends State<Settings> {
     late List<Widget> all = [];
 
     late List<List> text = [
-      [Icons.table_rows, "таблица данных"],
-      [Icons.send, "экспорт данных"],
-      [Icons.translate, "сменить язык"],
-      [Icons.delete, "удалить данные"]
+      [Icons.table_rows, "таблица данных", () {}],
+      [Icons.send, "экспорт данных", () {}],
+      [
+        Icons.translate,
+        "сменить язык",
+        () {
+          conf.language = conf.language=="ru"? "en":"ru";
+          setState(() {
+            
+          });
+        }
+      ],
+      [Icons.delete, "удалить данные", () {}]
     ];
 
     for (var i in text) {
@@ -26,7 +35,7 @@ class _SettingsState extends State<Settings> {
           width: MediaQuery.of(context).size.width * 10 / 10,
           height: MediaQuery.of(context).size.height * 1 / 10,
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: i[2],
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -105,14 +114,17 @@ class _SettingsState extends State<Settings> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Container(
-                      margin: const EdgeInsets.only(left: 15, bottom: 15),
-                      child: IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(
-                          Icons.arrow_back_ios,
-                          size: 50,
+                      margin: const EdgeInsets.only(left: 15),
+                      child: Container(
+                        margin: EdgeInsets.only(top: 5),
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(
+                            Icons.arrow_back_ios,
+                            size: 30,
+                          ),
                         ),
                       ),
                     ),

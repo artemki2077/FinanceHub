@@ -1,5 +1,7 @@
-import 'package:super_team/main.dart';
+import 'dart:convert';
 
+import 'package:super_team/main.dart';
+import 'package:http/http.dart' as http;
 import 'feedback_model.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +16,9 @@ var words = {
     "Settings": "Настройки",
     "Creat": "создавайте",
     "welcome back!": "с возвращением!",
+    "Digram": "Диграмма",
+    "Your incomes": "ваших доходы",
+    "Your expenses": "ваших расходов"
   },
   "en": {
     "Hello": "Hello",
@@ -25,6 +30,9 @@ var words = {
     "Settings": "Settings",
     "Creat": "Creat",
     "welcome back!": "welcome back!",
+    "Digram": "Digram",
+    "Your incomes": "Your incomes",
+    "Your expenses": "Your expenses"
   }
 };
 
@@ -33,19 +41,53 @@ Map<String, IconData> useIcons = {
   "школа": Icons.school,
   "зарплата": MyIcon.credit_card,
   "подарок": Icons.wallet_giftcard_sharp,
-  "еда": Icons.food_bank,
+  "еда": MyIcon.basket,
   "сбережения": MyIcon.piggy_bank,
   "перевод": Icons.send,
   "шопинг": MyIcon.shopping_bag
 };
 late List history = [];
 late String language = "ru";
-// ignore: prefer_typing_uninitialized_variables
 List<FeedbackModel> data = [];
 late double balance;
 var money = 0.0;
+Uri getUrl(final Map<String, String> data) {
+  if (data.isEmpty) {
+    return Uri.https(
+        "script.google.com",
+        "macros/s/AKfycbyrOejUslDNvZH2mYK_HXHIUl_dU53sXHJ7hUFiw7PrM3yoq1SyuEKS30j5X20RQ6ZVvw/exec",
+        data);
+  } else {
+    return Uri.https(
+      "script.google.com",
+      "macros/s/AKfycbyrOejUslDNvZH2mYK_HXHIUl_dU53sXHJ7hUFiw7PrM3yoq1SyuEKS30j5X20RQ6ZVvw/exec",
+      data,
+    );
+  }
+}
+
+var chartPlus = {};
+var chartMinus = {};
+late Map<String, Map<String, double>> dataPlus = {};
+late Map<String, Map<String, double>> dataMinus = {};
+
 late String link =
     "https://script.google.com/macros/s/AKfycbyrOejUslDNvZH2mYK_HXHIUl_dU53sXHJ7hUFiw7PrM3yoq1SyuEKS30j5X20RQ6ZVvw/exec";
+
+late List<String> MONTHS = <String>[
+  'январь',
+  'февраль',
+  'март',
+  'апрель',
+  'май',
+  'июнь',
+  'июль',
+  'август',
+  'сентябрь',
+  'октябрь',
+  'ноябрь',
+  'декабрь'
+];
 
 class MyIcon {
   MyIcon._();
