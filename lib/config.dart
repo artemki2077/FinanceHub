@@ -16,11 +16,13 @@ var words = {
     "Settings": "Настройки",
     "Creat": "создавайте",
     "welcome back!": "с возвращением!",
-    "Digram": "Диграмма",
+    "Diаgram": "Диаграмма",
     "Your incomes": "ваших доходы",
-    "Your expenses": "ваших расходов"
+    "Your expenses": "ваших расходов",
+    "Categories": "Категории",
   },
   "en": {
+    "Categories": "Categories",
     "Hello": "Hello",
     "Last": "Last",
     "all history": "all history  ❯",
@@ -30,7 +32,7 @@ var words = {
     "Settings": "Settings",
     "Creat": "Creat",
     "welcome back!": "welcome back!",
-    "Digram": "Digram",
+    "Diаgram": "Diаgram",
     "Your incomes": "Your incomes",
     "Your expenses": "Your expenses"
   }

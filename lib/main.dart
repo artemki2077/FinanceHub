@@ -122,11 +122,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       dev.log(er.toString());
     });
   }
-  // List<Widget> getListPlus(String mon){
-  //   for(var i in conf.chartPlus[mon]){
-
-  //   }
-  // }
 
   Widget button(IconData icon, String text, var sum, String add) {
     return Container(
@@ -185,6 +180,17 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             )));
   }
 
+  List<Widget> getListPlus(String mon) {
+    if (conf.chartPlus[mon] != null) {
+      List<Widget> arr = [];
+      for (var i in conf.dataPlus[mon]!.keys) {
+        arr.add(button(conf.useIcons[i]!, i, conf.dataPlus[mon]![i], ""));
+      }
+      return arr;
+    } else {
+      return [];
+    }
+  }
   Widget last() {
     if (wait) {
       return const Center(
@@ -470,50 +476,71 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   EdgeInsets.only(top: MediaQuery.of(context).size.height / 8),
               child: ListView(
                 children: [
-                  const Text(
-                    "   период",
-                    style: TextStyle(fontSize: 23),
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        color: Colors.transparent,
-                        width: MediaQuery.of(context).size.width / 2,
-                        child: Center(
-                          child: DropdownButton(
-                              value: ment,
-                              icon: const Icon(Icons.arrow_downward),
-                              items: plusment
-                                  .map<DropdownMenuItem<String>>((value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(
-                                    value,
-                                    style: TextStyle(fontSize: 30),
+                      const Text(
+                        "    период",
+                        style: TextStyle(fontSize: 23),
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            color: Colors.transparent,
+                            width: MediaQuery.of(context).size.width / 2,
+                            child: Center(
+                              child: DropdownButton(
+                                  value: ment,
+                                  icon: const Icon(Icons.arrow_downward),
+                                  items: plusment
+                                      .map<DropdownMenuItem<String>>((value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(
+                                        value,
+                                        style: TextStyle(fontSize: 30),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  underline: Container(
+                                    height: 2,
+                                    color: Colors.transparent,
                                   ),
-                                );
-                              }).toList(),
-                              underline: Container(
-                                height: 2,
-                                color: Colors.transparent,
-                              ),
-                              onChanged: (String? item) {
-                                setState(() {
-                                  ment = item;
-                                });
-                              }),
+                                  onChanged: (String? item) {
+                                    setState(() {
+                                      ment = item;
+                                    });
+                                  }),
+                            ),
+                          ),
+                        ],
+                      ),
+                      conf.dataPlus[ment] != null
+                          ? PieChart(dataMap: conf.dataPlus[ment]!)
+                          : Container(
+                              margin: EdgeInsets.only(top: 40),
+                              child: Center(
+                                  child: const CircularProgressIndicator())),
+                      Container(
+                        margin:
+                            const EdgeInsets.only(left: 15, top: 20, right: 30),
+                        // color: Colors.amber,
+                        width: 50,
+                        height: 50,
+                        child: Row(
+                          children: [
+                            Text(
+                              "${conf.words[conf.language]!["Categories"]}",
+                              style: TextStyle(
+                                  fontSize: 32, fontWeight: FontWeight.w600),
+                            ),
+                            Spacer(),
+                            const Text(
+                              "по убыванию",
+                              style: TextStyle(fontSize: 20),
+                            )
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                  conf.dataPlus[ment] != null
-                      ? PieChart(dataMap: conf.dataPlus[ment]!)
-                      : Container(
-                          margin: EdgeInsets.only(top: 40),
-                          child:
-                              Center(child: const CircularProgressIndicator())),
-                  Container(),
-                ],
+                    ] +
+                    getListPlus(ment.toString()),
               ),
             ),
             Container(
@@ -543,7 +570,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "${conf.words[conf.language]!["Digram"]}",
+                            "${conf.words[conf.language]!["Diаgram"]}",
                             style: const TextStyle(fontSize: 30),
                           ),
                           Text(
