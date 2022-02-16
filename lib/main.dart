@@ -38,8 +38,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   final GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
   bool wait = true;
-  late String Name = "Артём";
+  late String name = "Артём";
   var plusment = [];
+  var minusment = [];
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   late String? ment = "февраль";
@@ -50,6 +51,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       duration: const Duration(seconds: 3),
       backgroundColor: Colors.green,
     );
+    // ignore: deprecated_member_use
     _scaffoldkey.currentState?.showSnackBar(snackBar);
   }
 
@@ -115,6 +117,11 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       for (var i in conf.MONTHS) {
         if (conf.dataPlus.containsKey(i)) {
           plusment.add(i);
+        }
+      }
+      for (var i in conf.MONTHS) {
+        if (conf.dataPlus.containsKey(i)) {
+          minusment.add(i);
         }
       }
       debugPrint(conf.chartPlus.toString());
@@ -191,6 +198,19 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       return [];
     }
   }
+
+  List<Widget> getListMinus(String mon) {
+    if (conf.chartMinus[mon] != null) {
+      List<Widget> arr = [];
+      for (var i in conf.dataMinus[mon]!.keys) {
+        arr.add(button(conf.useIcons[i]!, i, conf.dataMinus[mon]![i], ""));
+      }
+      return arr;
+    } else {
+      return [];
+    }
+  }
+
   Widget last() {
     if (wait) {
       return const Center(
@@ -323,7 +343,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "${conf.words[conf.language]!["Hello"]}, $Name",
+                            "${conf.words[conf.language]!["Hello"]}, $name",
                             style: const TextStyle(fontSize: 30),
                           ),
                           Text(
@@ -452,7 +472,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   ],
                 ),
                 onPressed: () async {
-                  var result = await Navigator.push(
+                  var _ = await Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const History()),
                   );
@@ -476,9 +496,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   EdgeInsets.only(top: MediaQuery.of(context).size.height / 8),
               child: ListView(
                 children: [
-                      const Text(
-                        "    период",
-                        style: TextStyle(fontSize: 23),
+                      Text(
+                        "${conf.words[conf.language]!["time"]}",
+                        style: const TextStyle(fontSize: 23),
                       ),
                       Row(
                         children: [
@@ -495,7 +515,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                       value: value,
                                       child: Text(
                                         value,
-                                        style: TextStyle(fontSize: 30),
+                                        style: const TextStyle(fontSize: 30),
                                       ),
                                     );
                                   }).toList(),
@@ -515,9 +535,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                       conf.dataPlus[ment] != null
                           ? PieChart(dataMap: conf.dataPlus[ment]!)
                           : Container(
-                              margin: EdgeInsets.only(top: 40),
-                              child: Center(
-                                  child: const CircularProgressIndicator())),
+                              margin: const EdgeInsets.only(top: 40),
+                              child: const Center(
+                                  child: CircularProgressIndicator())),
                       Container(
                         margin:
                             const EdgeInsets.only(left: 15, top: 20, right: 30),
@@ -528,10 +548,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                           children: [
                             Text(
                               "${conf.words[conf.language]!["Categories"]}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 32, fontWeight: FontWeight.w600),
                             ),
-                            Spacer(),
+                            const Spacer(),
                             const Text(
                               "по убыванию",
                               style: TextStyle(fontSize: 20),
@@ -605,9 +625,141 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             ),
           ],
         ),
-        const Text(
-          '',
-          style: optionStyle,
+        Stack(
+          children: [
+            Container(
+              margin:
+                  EdgeInsets.only(top: MediaQuery.of(context).size.height / 8),
+              child: ListView(
+                children: [
+                      Text(
+                        "${conf.words[conf.language]!["time"]}",
+                        style: const TextStyle(fontSize: 23),
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            color: Colors.transparent,
+                            width: MediaQuery.of(context).size.width / 2,
+                            child: Center(
+                              child: DropdownButton(
+                                  value: ment,
+                                  icon: const Icon(Icons.arrow_downward),
+                                  items: minusment
+                                      .map<DropdownMenuItem<String>>((value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(
+                                        value,
+                                        style: const TextStyle(fontSize: 30),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  underline: Container(
+                                    height: 2,
+                                    color: Colors.transparent,
+                                  ),
+                                  onChanged: (String? item) {
+                                    setState(() {
+                                      ment = item;
+                                    });
+                                  }),
+                            ),
+                          ),
+                        ],
+                      ),
+                      conf.dataMinus[ment] != null
+                          ? PieChart(dataMap: conf.dataMinus[ment]!)
+                          : Container(
+                              margin: const EdgeInsets.only(top: 40),
+                              child: const Center(
+                                  child: CircularProgressIndicator())),
+                      Container(
+                        margin:
+                            const EdgeInsets.only(left: 15, top: 20, right: 30),
+                        // color: Colors.amber,
+                        width: 50,
+                        height: 50,
+                        child: Row(
+                          children: [
+                            Text(
+                              "${conf.words[conf.language]!["Categories"]}",
+                              style: const TextStyle(
+                                  fontSize: 32, fontWeight: FontWeight.w600),
+                            ),
+                            const Spacer(),
+                            const Text(
+                              "по убыванию",
+                              style: TextStyle(fontSize: 20),
+                            )
+                          ],
+                        ),
+                      ),
+                    ] +
+                    getListMinus(ment.toString()),
+              ),
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height / 6,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: const Color.fromARGB(255, 208, 241, 235),
+                // color: Colors.transparent
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 55,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      const Icon(
+                        MyIcon.chart_pie,
+                        size: 40,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "${conf.words[conf.language]!["Diаgram"]}",
+                            style: const TextStyle(fontSize: 30),
+                          ),
+                          Text(
+                            "${conf.words[conf.language]!["Your incomes"]}",
+                            style: const TextStyle(fontSize: 20),
+                          )
+                        ],
+                      ),
+                      const SizedBox(
+                        width: 35,
+                      ),
+                      IconButton(
+                          onPressed: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const Settings()),
+                            );
+                            setState(() {});
+                          },
+                          icon: const Icon(
+                            MyIcon.dot_3,
+                            size: 30,
+                          )),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ].elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(

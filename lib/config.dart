@@ -20,8 +20,10 @@ var words = {
     "Your incomes": "ваших доходы",
     "Your expenses": "ваших расходов",
     "Categories": "Категории",
+    "time": "    период"
   },
   "en": {
+    "time": "    time",
     "Categories": "Categories",
     "Hello": "Hello",
     "Last": "Last",
