@@ -5,6 +5,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 var words = {
   "ru": {
     "Hello": "Привет",
+    "Data sheet": "Таблица данных",
+    "Data export": "Экспорт данных",
+    "Change language": "Сментить язык",
+    "Delete data": "Удаление данных",
     "Last": "Последнее",
     "all history": "вся история  ❯",
     "Income": "Доход",
@@ -22,6 +26,10 @@ var words = {
   },
   "en": {
     "add": "add",
+    "Data sheet": "Data sheet",
+    "Data export": "Data export",
+    "Change language": "Change language",
+    "Delete data": "Delete data",
     "time": "    time",
     "Categories": "Categories",
     "Hello": "Hello",
@@ -60,12 +68,12 @@ Uri getUrl(final Map<String, String> data) {
   if (data.isEmpty) {
     return Uri.https(
         "script.google.com",
-        "macros/s/AKfycbyrOejUslDNvZH2mYK_HXHIUl_dU53sXHJ7hUFiw7PrM3yoq1SyuEX20RQ6ZVvw/exec",
+        "macros/s/AKfycbyrOejUslDNvZH2mYK_HXHIUl_dU53sXHJ7hUFiw7PrM3yoq1SyuEKS30j5X20RQ6ZVvw/exec",
         data);
   } else {
     return Uri.https(
       "script.google.com",
-      "macros/s/AKfycbyrOejUslDNvZH2mYK_HXHIUl_dU53sXHJ7hUFiw7yuEKS30j5X20RQ6ZVvw/exec",
+      "macros/s/AKfycbyrOejUslDNvZH2mYK_HXHIUl_dU53sXHJ7hUFiw7PrM3yoq1SyuEKS30j5X20RQ6ZVvw/exec",
       data,
     );
   }

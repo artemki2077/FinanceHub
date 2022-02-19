@@ -1,3 +1,4 @@
+import "package:shared_preferences/shared_preferences.dart";
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:super_team/history.dart';
@@ -12,7 +13,9 @@ import 'package:pie_chart/pie_chart.dart';
 
 final form = NumberFormat("#,##0.00", "en_US");
 final form2 = NumberFormat("#,##0", "en_US");
-void main() => runApp(const MyApp());
+void main() async {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -44,6 +47,14 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   late String? ment = "февраль";
+
+  getTypes() async {
+    conf.prefs = await SharedPreferences.getInstance();
+    conf.items = conf.prefs.getStringList('types') ?? [];
+    for (var i in conf.items) {
+      conf.useIcons[i] = conf.icons[conf.prefs.getString(i)]!;
+    }
+  }
 
   _showSnackBar(String word) {
     final snackBar = SnackBar(
@@ -124,7 +135,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           minusment.add(i);
         }
       }
-      debugPrint(conf.chartPlus.toString());
     }).catchError((er) {
       dev.log(er.toString());
     });
@@ -228,7 +238,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               conf.data[conf.data.length - 2].type,
               conf.data[conf.data.length - 2].sum,
               conf.data[conf.data.length - 2].correction),
-          conf.data.length > 1
+          conf.data.length != 1
               ? button(
                   conf.useIcons[conf.data[conf.data.length - 1].type]!,
                   conf.data[conf.data.length - 1].type,
@@ -257,6 +267,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
   @override
   void initState() {
+    getTypes();
     getData();
     super.initState();
   }
@@ -381,7 +392,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                      width: MediaQuery.of(context).size.width / 2.5,
+                      width: MediaQuery.of(context).size.width / 2.3,
                       height: MediaQuery.of(context).size.height / 10,
                       margin: const EdgeInsets.only(left: 18, top: 20),
                       child: ElevatedButton.icon(
@@ -410,7 +421,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                         },
                       )),
                   Container(
-                      width: MediaQuery.of(context).size.width / 2.5,
+                      width: MediaQuery.of(context).size.width / 2.3,
                       height: MediaQuery.of(context).size.height / 10,
                       margin: const EdgeInsets.only(right: 18, top: 20),
                       child: ElevatedButton.icon(
@@ -787,7 +798,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: const Color.fromARGB(255, 114, 126, 233),
         onTap: _onItemTapped,
       ),
     );

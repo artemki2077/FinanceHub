@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import "package:url_launcher/url_launcher.dart";
 import 'config.dart' as conf;
 
 class Settings extends StatefulWidget {
@@ -9,23 +10,29 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+  _launchURL() async {
+    const url =
+        "https://docs.google.com/spreadsheets/d/1SxlEH2F_5mRHfmQs5FEgf5Vv6YIzbiaK833-AIx95NY/edit#gid=0";
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  _changeLang() {
+    conf.language = conf.language == "ru" ? "en" : "ru";
+    setState(() {});
+  }
+
   List<Widget> addWidgets(context) {
     late List<Widget> all = [];
 
     late List<List> text = [
-      [Icons.table_rows, "таблица данных", () {}],
-      [Icons.send, "экспорт данных", () {}],
-      [
-        Icons.translate,
-        "сменить язык",
-        () {
-          conf.language = conf.language=="ru"? "en":"ru";
-          setState(() {
-            
-          });
-        }
-      ],
-      [Icons.delete, "удалить данные", () {}]
+      [Icons.table_rows, "Data sheet", _launchURL],
+      [Icons.send, "Data export", () {}],
+      [Icons.translate, "Change language", _changeLang],
+      [Icons.delete, "Delete data", () {}]
     ];
 
     for (var i in text) {
@@ -48,7 +55,7 @@ class _SettingsState extends State<Settings> {
                   width: 10,
                 ),
                 Text(
-                  i[1],
+                  "${conf.words[conf.language]![i[1]]}",
                   style: const TextStyle(fontSize: 20, color: Colors.black),
                 ),
                 const Spacer(),
