@@ -1,9 +1,6 @@
-import 'dart:convert';
-
-import 'package:super_team/main.dart';
-import 'package:http/http.dart' as http;
 import 'feedback_model.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 var words = {
   "ru": {
@@ -20,9 +17,11 @@ var words = {
     "Your incomes": "ваших доходы",
     "Your expenses": "ваших расходов",
     "Categories": "Категории",
-    "time": "    период"
+    "time": "    период",
+    "add": "Добавление",
   },
   "en": {
+    "add": "add",
     "time": "    time",
     "Categories": "Categories",
     "Hello": "Hello",
@@ -32,13 +31,14 @@ var words = {
     "Expense": "Expense",
     "Your Balance": "Your Balance",
     "Settings": "Settings",
-    "Creat": "Creat",
+    "Creat": "Create",
     "welcome back!": "welcome back!",
     "Diаgram": "Diаgram",
     "Your incomes": "Your incomes",
     "Your expenses": "Your expenses"
   }
 };
+late List<String> items = [];
 
 Map<String, IconData> useIcons = {
   "транспорт": MyIcon.directions_transit,
@@ -50,6 +50,7 @@ Map<String, IconData> useIcons = {
   "перевод": Icons.send,
   "шопинг": MyIcon.shopping_bag
 };
+late SharedPreferences prefs;
 late List history = [];
 late String language = "ru";
 List<FeedbackModel> data = [];
@@ -59,12 +60,12 @@ Uri getUrl(final Map<String, String> data) {
   if (data.isEmpty) {
     return Uri.https(
         "script.google.com",
-        "macros/s/AKfycbyrOejUslDNvZH2mYK_HXHIUl_dU53sXHJ7hUFiw7PrM3yoq1SyuEKS30j5X20RQ6ZVvw/exec",
+        "macros/s/AKfycbyrOejUslDNvZH2mYK_HXHIUl_dU53sXHJ7hUFiw7PrM3yoq1SyuEX20RQ6ZVvw/exec",
         data);
   } else {
     return Uri.https(
       "script.google.com",
-      "macros/s/AKfycbyrOejUslDNvZH2mYK_HXHIUl_dU53sXHJ7hUFiw7PrM3yoq1SyuEKS30j5X20RQ6ZVvw/exec",
+      "macros/s/AKfycbyrOejUslDNvZH2mYK_HXHIUl_dU53sXHJ7hUFiw7yuEKS30j5X20RQ6ZVvw/exec",
       data,
     );
   }
@@ -92,6 +93,29 @@ late List<String> MONTHS = <String>[
   'ноябрь',
   'декабрь'
 ];
+late Map<String, IconData> icons = {
+  "basket": MyIcon.basket,
+  "location_on": MyIcon.location_on,
+  "local_taxi": MyIcon.local_taxi,
+  "star": MyIcon.star,
+  "looped_square_interest": MyIcon.looped_square_interest,
+  "looped_square_outline": MyIcon.looped_square_outline,
+  "directions_transit": MyIcon.directions_transit,
+  "delete": MyIcon.delete,
+  "export_icon": MyIcon.export_icon,
+  "language": MyIcon.language,
+  "credit_card": MyIcon.credit_card,
+  "dot_3": MyIcon.dot_3,
+  "message": MyIcon.message,
+  "plus_circle": MyIcon.plus_circle,
+  "minus_circle": MyIcon.minus_circle,
+  "plus": MyIcon.plus,
+  "minus": MyIcon.minus,
+  "chart_pie": MyIcon.chart_pie,
+  "shopping_bag": MyIcon.shopping_bag,
+  "primitive_square": MyIcon.primitive_square,
+  "piggy_bank": MyIcon.piggy_bank,
+};
 
 class MyIcon {
   MyIcon._();
