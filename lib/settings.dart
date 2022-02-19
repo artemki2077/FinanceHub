@@ -25,12 +25,22 @@ class _SettingsState extends State<Settings> {
     setState(() {});
   }
 
+  _getCsv() async{
+    const url =
+        "http://docs.google.com/feeds/download/spreadsheets/Export?key=1SxlEH2F_5mRHfmQs5FEgf5Vv6YIzbiaK833-AIx95NY&exportFormat=csv&gid=0";
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   List<Widget> addWidgets(context) {
     late List<Widget> all = [];
 
     late List<List> text = [
       [Icons.table_rows, "Data sheet", _launchURL],
-      [Icons.send, "Data export", () {}],
+      [Icons.send, "Data export", _getCsv],
       [Icons.translate, "Change language", _changeLang],
       [Icons.delete, "Delete data", () {}]
     ];
