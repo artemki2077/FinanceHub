@@ -1,10 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.super_team">
+    <uses-permission android:name="android.permission.INTERNET"/>
    <application
         android:label="super_team"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <activity
+        <activityssssss
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"

@@ -23,8 +23,10 @@ var words = {
     "Categories": "Категории",
     "time": "    период",
     "add": "Добавление",
+    "no data": "у вас нет данных"
   },
   "en": {
+    "no data": "no data",
     "add": "add",
     "Data sheet": "Data sheet",
     "Data export": "Data export",

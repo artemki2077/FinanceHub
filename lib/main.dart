@@ -250,10 +250,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         ],
       );
     } else {
-      return const Center(
+      return Center(
         child: Text(
-          "У вас нет данных",
-          style: TextStyle(fontSize: 20),
+          "${conf.words[conf.language]!["no data"]}",
+          style: const TextStyle(fontSize: 20),
         ),
       );
     }
@@ -741,7 +741,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                             style: const TextStyle(fontSize: 30),
                           ),
                           Text(
-                            "${conf.words[conf.language]!["Your incomes"]}",
+                            "${conf.words[conf.language]!["Your expenses"]}",
                             style: const TextStyle(fontSize: 20),
                           )
                         ],
