@@ -8,6 +8,7 @@ import 'dart:developer';
 
 final form = NumberFormat("#,##0", "en_US");
 final form2 = NumberFormat("#,##0.00", "en_US");
+final dataformat = DateFormat('yyyy/MM/dd');
 
 class History extends StatefulWidget {
   const History({Key? key}) : super(key: key);
@@ -17,6 +18,8 @@ class History extends StatefulWidget {
 }
 
 class _HistoryState extends State<History> {
+  bool _inf = false;
+  DateTime now = DateTime.now();
   Future getData() async {
     late DateTime last = DateTime(1890);
     var request = await http.get(Uri.parse(conf.link));
@@ -25,19 +28,57 @@ class _HistoryState extends State<History> {
       conf.history = [];
       conf.data = [];
       var jsonFeedback = convert.jsonDecode(request.body);
-      jsonFeedback.forEach((e) {
+      jsonFeedback.forEach((e) async {
         FeedbackModel feedbackModel = FeedbackModel();
         feedbackModel.date = e["date"];
         feedbackModel.type = e["type"];
         feedbackModel.correction = e["correction"];
         feedbackModel.comment = e["comment"];
         feedbackModel.sum = e["sum"];
-        conf.money += e["sum"];
+        // conf.money += e["sum"];
         conf.data.add(feedbackModel);
-        if (last.day != DateTime.parse(e["date"]).day) {
-          conf.history.add(DateTime.parse(e["date"]));
+        var date = DateTime.parse(e["date"]);
+        if (now.month == date.month) {
+          conf.money += e["sum"];
+        }
+        late String mon = conf.MONTHS[date.month - 1];
+        if (e["sum"] > 0) {
+          if (conf.chartPlus.containsKey(mon)) {
+            conf.chartPlus[mon].add(feedbackModel);
+          } else {
+            conf.chartPlus[mon] = [feedbackModel];
+          }
+          if (conf.dataPlus.containsKey(mon)) {
+            if (conf.dataPlus[mon]!.containsKey(e["type"])) {
+              conf.dataPlus[mon]![e["type"]] =
+                  conf.dataPlus[mon]![e["type"]]! + e["sum"].toDouble();
+            } else {
+              conf.dataPlus[mon]![e["type"]] = e["sum"].toDouble()!;
+            }
+          } else {
+            conf.dataPlus[mon] = {e["type"]: e["sum"].toDouble()};
+          }
+        } else {
+          if (conf.chartMinus.containsKey(mon)) {
+            conf.chartMinus[mon].add(feedbackModel);
+          } else {
+            conf.chartMinus[mon] = [feedbackModel];
+          }
+          if (conf.dataMinus.containsKey(mon)) {
+            if (conf.dataMinus[mon]!.containsKey(e["type"])) {
+              conf.dataMinus[mon]![e["type"]] =
+                  conf.dataMinus[mon]![e["type"]]! - e["sum"].toDouble();
+            } else {
+              conf.dataMinus[mon]![e["type"]] = -e["sum"].toDouble()!;
+            }
+          } else {
+            conf.dataMinus[mon] = {e["type"]: -e["sum"].toDouble()};
+          }
+        }
+        if (last.day != date.day) {
+          conf.history.add(date);
           conf.history.add(feedbackModel);
-          last = DateTime.parse(e["date"]);
+          last = date;
         } else {
           conf.history.add(feedbackModel);
         }
@@ -104,6 +145,7 @@ class _HistoryState extends State<History> {
   }
 
   List<Widget> addWidgets() {
+    final nowStr = dataformat.format(now);
     List<Widget> all = [];
     var MONTHS = [
       'янв',
@@ -122,21 +164,23 @@ class _HistoryState extends State<History> {
     final DateFormat m = DateFormat.M();
     final DateFormat d = DateFormat.d();
     final DateFormat y = DateFormat.y();
-    for (var i in conf.history) {
+
+    for (var i in (_inf ? conf.infHistory : conf.history)) {
       if (i.runtimeType == DateTime) {
         all.add(Text(
-          "     " +
+          "    " +
               d.format(i).toString() +
               " " +
               MONTHS[int.parse(m.format(i)) - 1] +
               ", " +
               y.format(i),
-          style: const TextStyle(fontSize: 20),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
         ));
       } else {
         all.add(button(conf.useIcons[i.type]!, i.type, i.sum, i.correction));
       }
     }
+    setState(() {});
     return all;
   }
 
@@ -154,12 +198,44 @@ class _HistoryState extends State<History> {
               onRefresh: getData,
               child: ListView(
                   padding: const EdgeInsets.all(5),
-                  children: addWidgets() +
-                      [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 1 / 10,
+                  children: <Widget>[
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 30, top: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                icon: Icon(
+                                  _inf
+                                      ? Icons.square_rounded
+                                      : Icons.crop_square,
+                                  color: Color.fromRGBO(183, 191, 255, 1),
+                                  size: 35,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _inf = !_inf;
+                                  });
+                                },
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width / 1.5,
+                                child: const Flexible(
+                                    child: Text(
+                                  "показать суммы с учетом инфляции",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 20),
+                                )),
+                              )
+                            ],
+                          ),
                         )
-                      ]),
+                      ] +
+                      addWidgets()),
             ),
           ),
           Container(

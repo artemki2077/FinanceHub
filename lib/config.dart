@@ -62,6 +62,7 @@ Map<String, IconData> useIcons = {
 };
 late SharedPreferences prefs;
 late List history = [];
+late List infHistory = [];
 late String language = "ru";
 List<FeedbackModel> data = [];
 late double balance;

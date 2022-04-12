@@ -13,6 +13,7 @@ import 'package:pie_chart/pie_chart.dart';
 
 final form = NumberFormat("#,##0.00", "en_US");
 final form2 = NumberFormat("#,##0", "en_US");
+final dataformat = DateFormat('yyyy/MM/dd');
 void main() async {
   runApp(const MyApp());
 }
@@ -41,12 +42,14 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   final GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
   bool wait = true;
+  DateTime now = DateTime.now();
   late String name = "Артём";
   var plusment = [];
   var minusment = [];
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  late String? ment = "февраль";
+  late String? pment = "февраль";
+  late String? mment = "февраль";
 
   getTypes() async {
     conf.prefs = await SharedPreferences.getInstance();
@@ -67,6 +70,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   }
 
   getData() {
+    final nowStr = dataformat.format(now);
     late DateTime last = DateTime(1890);
     http.get(Uri.parse(conf.link)).then((value) {
       var jsonFeedback = convert.jsonDecode(value.body);
@@ -77,9 +81,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         feedbackModel.correction = e["correction"];
         feedbackModel.comment = e["comment"];
         feedbackModel.sum = e["sum"];
-        conf.money += e["sum"];
+        // conf.money += e["sum"];
         conf.data.add(feedbackModel);
         var date = DateTime.parse(e["date"]);
+        if (now.month == date.month) {
+          conf.money += e["sum"];
+        }
         late String mon = conf.MONTHS[date.month - 1];
         if (e["sum"] > 0) {
           if (conf.chartPlus.containsKey(mon)) {
@@ -114,12 +121,28 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             conf.dataMinus[mon] = {e["type"]: -e["sum"].toDouble()};
           }
         }
-        if (last.day != date.day) {
+        if (last.day != date.day || last.month != date.month) {
           conf.history.add(date);
           conf.history.add(feedbackModel);
+          conf.infHistory.add(date);
+          conf.infHistory.add(FeedbackModel(
+            comment: feedbackModel.comment,
+            date: feedbackModel.date,
+            type: feedbackModel.type,
+            correction: feedbackModel.correction,
+            sum: feedbackModel.sum,
+          ));
+
           last = date;
         } else {
           conf.history.add(feedbackModel);
+          conf.infHistory.add(FeedbackModel(
+            comment: feedbackModel.comment,
+            date: feedbackModel.date,
+            type: feedbackModel.type,
+            correction: feedbackModel.correction,
+            sum: feedbackModel.sum,
+          ));
         }
       });
       setState(() {
@@ -131,10 +154,27 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         }
       }
       for (var i in conf.MONTHS) {
-        if (conf.dataPlus.containsKey(i)) {
+        if (conf.dataMinus.containsKey(i)) {
           minusment.add(i);
         }
       }
+      conf.infHistory.forEach((element) {
+        if (element.runtimeType != DateTime) {
+          var request = http
+              .get(Uri.https(
+                  'www.statbureau.org', "calculate-inflation-price-jsonp", {
+            "country": 'russia',
+            "start": element.date.substring(0, 10).replaceAll("-", "/"),
+            "end": nowStr,
+            "amount": element.sum.toString(),
+            "format": "false"
+          }))
+              .then((request) {
+            var nsum = request.body;
+            element.sum = double.parse(nsum.substring(2, nsum.length - 2));
+          });
+        }
+      });
     }).catchError((er) {
       dev.log(er.toString());
     });
@@ -518,7 +558,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                             width: MediaQuery.of(context).size.width / 2,
                             child: Center(
                               child: DropdownButton(
-                                  value: ment,
+                                  value: pment,
                                   icon: const Icon(Icons.arrow_downward),
                                   items: plusment
                                       .map<DropdownMenuItem<String>>((value) {
@@ -536,15 +576,16 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                   ),
                                   onChanged: (String? item) {
                                     setState(() {
-                                      ment = item;
+                                      pment = item;
                                     });
                                   }),
                             ),
                           ),
                         ],
                       ),
-                      conf.dataPlus[ment] != null
-                          ? PieChart(dataMap: conf.dataPlus[ment]!)
+                      conf.dataPlus.containsKey(pment) &&
+                              conf.dataPlus[pment] != null
+                          ? PieChart(dataMap: conf.dataPlus[pment]!)
                           : Container(
                               margin: const EdgeInsets.only(top: 40),
                               child: const Center(
@@ -571,7 +612,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                         ),
                       ),
                     ] +
-                    getListPlus(ment.toString()),
+                    getListPlus(pment.toString()),
               ),
             ),
             Container(
@@ -654,7 +695,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                             width: MediaQuery.of(context).size.width / 2,
                             child: Center(
                               child: DropdownButton(
-                                  value: ment,
+                                  value: mment,
                                   icon: const Icon(Icons.arrow_downward),
                                   items: minusment
                                       .map<DropdownMenuItem<String>>((value) {
@@ -672,15 +713,16 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                   ),
                                   onChanged: (String? item) {
                                     setState(() {
-                                      ment = item;
+                                      mment = item;
                                     });
                                   }),
                             ),
                           ),
                         ],
                       ),
-                      conf.dataMinus[ment] != null
-                          ? PieChart(dataMap: conf.dataMinus[ment]!)
+                      conf.dataMinus.containsKey(mment) &&
+                              conf.dataMinus[mment] != null
+                          ? PieChart(dataMap: conf.dataMinus[mment]!)
                           : Container(
                               margin: const EdgeInsets.only(top: 40),
                               child: const Center(
@@ -707,7 +749,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                         ),
                       ),
                     ] +
-                    getListMinus(ment.toString()),
+                    getListMinus(mment.toString()),
               ),
             ),
             Container(
