@@ -7,7 +7,7 @@ var words = {
     "Hello": "Привет",
     "Data sheet": "Таблица данных",
     "Data export": "Экспорт данных",
-    "Change language": "Сментить язык",
+    "Change language": "Сменить язык",
     "Delete data": "Удаление данных",
     "Last": "Последнее",
     "all history": "вся история  ❯",
@@ -18,14 +18,16 @@ var words = {
     "Creat": "создавайте",
     "welcome back!": "с возвращением!",
     "Diаgram": "Диаграмма",
-    "Your incomes": "ваших доходы",
+    "Your incomes": "ваших доходов",
     "Your expenses": "ваших расходов",
     "Categories": "Категории",
     "time": "    период",
     "add": "Добавление",
-    "no data": "у вас нет данных"
+    "no data": "у вас нет данных",
+    "money forecast": "прогноз расходов"
   },
   "en": {
+    "money forecast": "money forecast",
     "no data": "no data",
     "add": "add",
     "Data sheet": "Data sheet",
@@ -82,13 +84,20 @@ Uri getUrl(final Map<String, String> data) {
   }
 }
 
+bool? logined;
+var forecast = 0.0;
+String? name;
+String? sheetId;
+
 var chartPlus = {};
 var chartMinus = {};
 late Map<String, Map<String, double>> dataPlus = {};
 late Map<String, Map<String, double>> dataMinus = {};
 
-late String link =
-    "https://script.google.com/macros/s/AKfycbyrOejUslDNvZH2mYK_HXHIUl_dU53sXHJ7hUFiw7PrM3yoq1SyuEKS30j5X20RQ6ZVvw/exec";
+var link = Uri.https(
+    "script.google.com",
+    "macros/s/AKfycbyrOejUslDNvZH2mYK_HXHIUl_dU53sXHJ7hUFiw7PrM3yoq1SyuEKS30j5X20RQ6ZVvw/exec",
+    {"sheetid": sheetId});
 
 late List<String> MONTHS = <String>[
   'январь',

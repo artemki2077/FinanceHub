@@ -22,10 +22,11 @@ class _HistoryState extends State<History> {
   DateTime now = DateTime.now();
   Future getData() async {
     late DateTime last = DateTime(1890);
-    var request = await http.get(Uri.parse(conf.link));
+    var request = await http.get(conf.link);
     if (request.statusCode == 200) {
       conf.money = 0.0;
       conf.history = [];
+      conf.infHistory = [];
       conf.data = [];
       var jsonFeedback = convert.jsonDecode(request.body);
       jsonFeedback.forEach((e) async {
@@ -78,9 +79,24 @@ class _HistoryState extends State<History> {
         if (last.day != date.day) {
           conf.history.add(date);
           conf.history.add(feedbackModel);
+          conf.infHistory.add(date);
+          conf.infHistory.add(FeedbackModel(
+            comment: feedbackModel.comment,
+            date: feedbackModel.date,
+            type: feedbackModel.type,
+            correction: feedbackModel.correction,
+            sum: feedbackModel.sum,
+          ));
           last = date;
         } else {
           conf.history.add(feedbackModel);
+          conf.infHistory.add(FeedbackModel(
+            comment: feedbackModel.comment,
+            date: feedbackModel.date,
+            type: feedbackModel.type,
+            correction: feedbackModel.correction,
+            sum: feedbackModel.sum,
+          ));
         }
       });
     }

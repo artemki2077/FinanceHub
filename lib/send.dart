@@ -146,6 +146,7 @@ class _SendState extends State<Send> {
                           "type": name,
                           "add": "",
                           "comment": "",
+                          "sheetid": conf.sheetId!,
                           "sum": (widget.b ? sum : -sum).toString()
                         },
                       ),

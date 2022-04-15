@@ -1,9 +1,11 @@
+import 'package:flutter/services.dart';
 import "package:shared_preferences/shared_preferences.dart";
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:super_team/history.dart';
 import "settings.dart";
 import 'dart:convert' as convert;
+import "package:url_launcher/url_launcher.dart";
 import 'package:http/http.dart' as http;
 import 'config.dart' as conf;
 import 'feedback_model.dart';
@@ -23,41 +25,169 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: MyStatefulWidget(),
+    return MaterialApp(
+      home: Starting(),
     );
   }
 }
 
-class MyStatefulWidget extends StatefulWidget {
-  const MyStatefulWidget({Key? key, this.mess = ""}) : super(key: key);
+class Starting extends StatefulWidget {
+  @override
+  State<Starting> createState() => _StartingState();
+}
+
+class _StartingState extends State<Starting> {
+  String sheetId = '';
+  String name = '';
+
+  getDates() async {
+    conf.prefs = await SharedPreferences.getInstance();
+    conf.logined = conf.prefs.getBool('logined') ?? false;
+    conf.sheetId = conf.prefs.getString("sheetId");
+    conf.name = conf.prefs.getString("name");
+    conf.items = conf.prefs.getStringList('types') ?? [];
+    for (var i in conf.items) {
+      conf.useIcons[i] = conf.icons[conf.prefs.getString(i)]!;
+    }
+    if (conf.logined!) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      );
+    } else {
+      var url =
+          "https://script.google.com/macros/s/AKfycbySWi90eYH4xbForLDD8yGWQLgRl1GVtlaGTfbtklkI1YzayYHku2-f-MwExfGAc14STg/exec";
+      if (await canLaunch(url)) {
+        await launch(url).then((value) => setState((() {})));
+      } else {
+        throw 'Could not launch $url';
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    getDates();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+          child: conf.logined == null
+              ? const CircularProgressIndicator()
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.all(20),
+                      child: TextFormField(
+                          cursorColor: const Color.fromRGBO(243, 167, 65, 1),
+                          autofillHints: const [AutofillHints.password],
+                          keyboardType: TextInputType.visiblePassword,
+                          onEditingComplete: () =>
+                              TextInput.finishAutofillContext(),
+                          onChanged: (e) {
+                            name = e;
+                          },
+                          decoration: InputDecoration(
+                            fillColor: const Color.fromRGBO(243, 167, 65, 1),
+                            iconColor: const Color.fromRGBO(243, 167, 65, 1),
+                            focusColor: const Color.fromRGBO(243, 167, 65, 1),
+                            hintText: "Имя",
+                            border: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    color: Color.fromARGB(255, 20, 154, 221)),
+                                borderRadius: BorderRadius.circular(20.0)),
+                            prefixIcon: const Icon(
+                              Icons.account_circle_rounded,
+                              color: Colors.blueAccent,
+                            ),
+                          )),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(
+                          left: 20, right: 20, bottom: 30),
+                      child: TextFormField(
+                          cursorColor: const Color.fromRGBO(243, 167, 65, 1),
+                          autofillHints: const [AutofillHints.password],
+                          keyboardType: TextInputType.visiblePassword,
+                          onEditingComplete: () =>
+                              TextInput.finishAutofillContext(),
+                          onChanged: (e) {
+                            sheetId = e;
+                          },
+                          decoration: InputDecoration(
+                            fillColor: const Color.fromRGBO(243, 167, 65, 1),
+                            iconColor: const Color.fromRGBO(243, 167, 65, 1),
+                            focusColor: const Color.fromRGBO(243, 167, 65, 1),
+                            hintText: "Код",
+                            border: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    color: Color.fromARGB(255, 20, 154, 221)),
+                                borderRadius: BorderRadius.circular(20.0)),
+                            prefixIcon: const Icon(
+                              Icons.key_sharp,
+                              color: Colors.blueAccent,
+                            ),
+                          )),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 10),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          conf.prefs.setBool("logined", true);
+                          conf.prefs.setString("sheetId", sheetId);
+                          conf.prefs.setString("name", name);
+                          conf.sheetId = sheetId;
+                          conf.name = name;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Home()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.blueAccent,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 50, vertical: 20),
+                        ),
+                        child: const Center(
+                            child: Text(
+                          "Вход",
+                          style: TextStyle(color: Colors.white, fontSize: 30),
+                        )),
+                      ),
+                    )
+                  ],
+                )),
+    );
+  }
+}
+
+class Home extends StatefulWidget {
+  const Home({Key? key, this.mess = ""}) : super(key: key);
 
   final mess;
 
   @override
-  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
+  State<Home> createState() => _HomeState();
 }
 
-class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+class _HomeState extends State<Home> {
   final GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
   bool wait = true;
   DateTime now = DateTime.now();
-  late String name = "Артём";
+  late String name = conf.name!;
   var plusment = [];
   var minusment = [];
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   late String? pment = "февраль";
   late String? mment = "февраль";
-
-  getTypes() async {
-    conf.prefs = await SharedPreferences.getInstance();
-    conf.items = conf.prefs.getStringList('types') ?? [];
-    for (var i in conf.items) {
-      conf.useIcons[i] = conf.icons[conf.prefs.getString(i)]!;
-    }
-  }
 
   _showSnackBar(String word) {
     final snackBar = SnackBar(
@@ -72,7 +202,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   getData() {
     final nowStr = dataformat.format(now);
     late DateTime last = DateTime(1890);
-    http.get(Uri.parse(conf.link)).then((value) {
+    http.get(conf.link).then((value) {
       var jsonFeedback = convert.jsonDecode(value.body);
       jsonFeedback.forEach((e) {
         FeedbackModel feedbackModel = FeedbackModel();
@@ -146,6 +276,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         }
       });
       setState(() {
+        pment = conf.MONTHS[DateTime.parse(conf.data[conf.data.length-1].date).month - 1];
+        mment = conf.MONTHS[DateTime.parse(conf.data[conf.data.length-1].date).month - 1];
         wait = false;
       });
       for (var i in conf.MONTHS) {
@@ -175,8 +307,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           });
         }
       });
-    }).catchError((er) {
-      dev.log(er.toString());
+
+      conf.forecast = (conf.money / now.day) * 30;
     });
   }
 
@@ -272,22 +404,29 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     } else if (!wait && conf.data.isNotEmpty) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          button(
-              conf.useIcons[conf.data[conf.data.length - 2].type]!,
-              conf.data[conf.data.length - 2].type,
-              conf.data[conf.data.length - 2].sum,
-              conf.data[conf.data.length - 2].correction),
-          conf.data.length != 1
-              ? button(
-                  conf.useIcons[conf.data[conf.data.length - 1].type]!,
-                  conf.data[conf.data.length - 1].type,
-                  conf.data[conf.data.length - 1].sum,
-                  conf.data[conf.data.length - 1].correction)
-              : SizedBox(
+        children: conf.data.length >= 2
+            ? [
+                button(
+                    conf.useIcons[conf.data[conf.data.length - 2].type]!,
+                    conf.data[conf.data.length - 2].type,
+                    conf.data[conf.data.length - 2].sum,
+                    conf.data[conf.data.length - 2].correction),
+                button(
+                    conf.useIcons[conf.data[conf.data.length - 1].type]!,
+                    conf.data[conf.data.length - 1].type,
+                    conf.data[conf.data.length - 1].sum,
+                    conf.data[conf.data.length - 1].correction),
+              ]
+            : [
+                button(
+                    conf.useIcons[conf.data[conf.data.length - 1].type]!,
+                    conf.data[conf.data.length - 1].type,
+                    conf.data[conf.data.length - 1].sum,
+                    conf.data[conf.data.length - 1].correction),
+                SizedBox(
                   height: MediaQuery.of(context).size.height / 11,
                 )
-        ],
+              ],
       );
     } else {
       return Center(
@@ -307,7 +446,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
   @override
   void initState() {
-    getTypes();
     getData();
     super.initState();
   }
@@ -345,16 +483,38 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                       child: Image.asset('images/pig2.png'),
                       margin: const EdgeInsets.only(top: 10, bottom: 10),
                     ),
-                    Text.rich(TextSpan(
-                        text: "${conf.words[conf.language]!["Your Balance"]}\n",
-                        style:
-                            const TextStyle(color: Colors.black, fontSize: 20),
-                        children: <TextSpan>[
-                          TextSpan(
-                              text: form.format(conf.money),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.width / 3,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text.rich(TextSpan(
+                              text:
+                                  "${conf.words[conf.language]!["Your Balance"]}\n",
                               style: const TextStyle(
-                                  fontSize: 25, fontWeight: FontWeight.w600))
-                        ])),
+                                  color: Colors.black, fontSize: 20),
+                              children: <TextSpan>[
+                                TextSpan(
+                                    text: form.format(conf.money),
+                                    style: const TextStyle(
+                                        fontSize: 25,
+                                        fontWeight: FontWeight.w600))
+                              ])),
+                          Text.rich(TextSpan(
+                              text:
+                                  "${conf.words[conf.language]!["money forecast"]}\n",
+                              style: const TextStyle(
+                                  color: Colors.black, fontSize: 13),
+                              children: <TextSpan>[
+                                TextSpan(
+                                    text: form.format(conf.forecast),
+                                    style: const TextStyle(
+                                        fontSize: 25,
+                                        fontWeight: FontWeight.w600))
+                              ])),
+                        ],
+                      ),
+                    ),
                     const Icon(
                       Icons.chevron_right,
                       color: Colors.black,
@@ -896,3 +1056,4 @@ class MyIcon {
   static const IconData piggy_bank =
       IconData(0xf4d3, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }
+      
