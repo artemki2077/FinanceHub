@@ -11,8 +11,8 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   _launchURL() async {
-    const url =
-        "https://docs.google.com/spreadsheets/d/1SxlEH2F_5mRHfmQs5FEgf5Vv6YIzbiaK833-AIx95NY/edit#gid=0";
+    var url =
+        "https://docs.google.com/spreadsheets/d/${conf.sheetId}/edit#gid=0";
     if (await canLaunch(url)) {
       await launch(url);
     } else {
@@ -25,9 +25,9 @@ class _SettingsState extends State<Settings> {
     setState(() {});
   }
 
-  _getCsv() async{
-    const url =
-        "http://docs.google.com/feeds/download/spreadsheets/Export?key=1SxlEH2F_5mRHfmQs5FEgf5Vv6YIzbiaK833-AIx95NY&exportFormat=csv&gid=0";
+  _getCsv() async {
+    var url =
+        "http://docs.google.com/feeds/download/spreadsheets/Export?key=${conf.sheetId}&exportFormat=csv&gid=0";
     if (await canLaunch(url)) {
       await launch(url);
     } else {
@@ -133,7 +133,7 @@ class _SettingsState extends State<Settings> {
                     Container(
                       margin: const EdgeInsets.only(left: 15),
                       child: Container(
-                        margin: EdgeInsets.only(top: 5),
+                        margin: const EdgeInsets.only(top: 5),
                         child: IconButton(
                           onPressed: () {
                             Navigator.pop(context);
@@ -153,12 +153,12 @@ class _SettingsState extends State<Settings> {
                       children: [
                         Text(
                           conf.words[conf.language]!["Settings"]!,
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 30, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           conf.words[conf.language]!["Creat"]!,
-                          style: TextStyle(fontSize: 20),
+                          style: const TextStyle(fontSize: 20),
                         )
                       ],
                     ),
